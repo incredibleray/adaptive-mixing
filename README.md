@@ -3,6 +3,7 @@
 # overview
 use two lossless encoder LZW and X. a entropy encoder AE, and a mixing module M.
 
+```python
 lzwSeq=""
 xSeq=""
 
@@ -28,7 +29,8 @@ if len(lzwOutSeq) < len(xOutSeq)
   outSeq=lzwOutSeq
 else
   outSeq=xOutSeq
-  
+```
+
 # packages
 LZW: https://pythonhosted.org/lzw/lzw-module.html
 AE: https://github.com/ahmedfgad/ArithmeticEncodingPython
