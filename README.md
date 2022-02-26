@@ -35,4 +35,7 @@ else
 # packages
 LZW: https://pythonhosted.org/lzw/lzw-module.html
 AE: https://github.com/ahmedfgad/ArithmeticEncodingPython
+https://github.com/michaeldipperstein/arcode-py
+https://github.com/nayuki/Reference-arithmetic-coding
+https://pypi.org/project/torchac/
 RLE: https://github.com/tnwei/python-rle
