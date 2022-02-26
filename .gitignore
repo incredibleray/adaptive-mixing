@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# virtualenv
+venv/
+
+# package
+build/
+dist/
+*.egg-info
+
+*.log
+*.temp
+*.mbtree
+debug.json
+
+*.mp4
+*.png
+*.webm
+*.ogv
+*.m4a
+*.mp3
+
+*.txt
+*.sed
