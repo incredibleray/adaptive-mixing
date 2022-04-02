@@ -12,6 +12,11 @@ rleSeq=""
 lzwOutSeq=""
 rleOutSeq=""
 
+lzwOutSeqLen=0
+rleOutSeqLen=0
+
+lzwWeight=0.5
+
 for i in range(1, len(inputSeq)):
   seq=inputSeq[:i]
 
@@ -24,14 +29,6 @@ for i in range(1, len(inputSeq)):
   print("lzw prob\n{}".format(lzwProbTable))
   print("rle prob\n{}".format(rleProbTable))
 
-  lzwAe=ae.encodedLen(lzwSeq, lzwProbTable)
-  rleAe=ae.encodedLen(rleSeq, rleProbTable)
-
-  print("lzw AE:"+str(lzwAe))
-  print("rle AE:"+str(rleAe))
-  
-  lzwWeight=lzwAe/(lzwAe+rleAe)
-  
   weightedProb={}
   for p in lzwProbTable:
     weightedProb[p]=lzwProbTable[p]*lzwWeight
@@ -44,11 +41,18 @@ for i in range(1, len(inputSeq)):
 
 
 # Encode the message
-  lzwOutSeq=ae.encodedLen(lzwSeq, weightedProb)
-  rleOutSeq=ae.encodedLen(rleSeq, weightedProb)
+  lzwOutSeq=None
+  rleOutSeq=None
 
-  print("lzw sequence, len={}".format(lzwOutSeq))
-  print("rle sequence, len={}".format(rleOutSeq))
+  lzwOutSeqLen=ae.encodedLen(lzwSeq, weightedProb)
+  rleOutSeqLen=ae.encodedLen(rleSeq, weightedProb)
+
+  print("lzw sequence, len={}".format(lzwOutSeqLen))
+  print("rle sequence, len={}".format(rleOutSeqLen))
+
+  lzwWeight=rleOutSeqLen/(lzwOutSeqLen+rleOutSeqLen)
+
+  print("lzw weight={}, rle weight={}".format(lzwWeight, 1-lzwWeight))
 
   # if len(lzwOutSeq) < len(rleOutSeq):
   #   outSeq=lzwOutSeq
