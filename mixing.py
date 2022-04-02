@@ -21,11 +21,14 @@ for i in range(1, len(inputSeq)):
   lzwProbTable=dict(Counter(lzwSeq))
   rleProbTable=dict(Counter(rleSeq))
   
+  print("lzw prob\n{}".format(lzwProbTable))
+  print("rle prob\n{}".format(rleProbTable))
+
   lzwAe=ae.encodedLen(lzwSeq, lzwProbTable)
   rleAe=ae.encodedLen(rleSeq, rleProbTable)
 
-  print(lzwAe)
-  print(rleAe)
+  print("lzw AE:"+str(lzwAe))
+  print("rle AE:"+str(rleAe))
   
   lzwWeight=lzwAe/(lzwAe+rleAe)
   
@@ -37,18 +40,18 @@ for i in range(1, len(inputSeq)):
     weightedProb[p]=(weightedProb.get(p) or 0) +rleProbTable[p]*(1-lzwWeight)
   
   # mixedProbTable=M.mixProbTable(lzwProbTable, rleProbTable, lzwWeight)
-  
+  print(weightedProb)
 
 
 # Encode the message
   lzwOutSeq=ae.encodedLen(lzwSeq, weightedProb)
   rleOutSeq=ae.encodedLen(rleSeq, weightedProb)
 
-  print(lzwOutSeq)
-  print(rleOutSeq)
+  print("lzw sequence, len={}".format(lzwOutSeq))
+  print("rle sequence, len={}".format(rleOutSeq))
 
-if len(lzwOutSeq) < len(rleOutSeq):
-  outSeq=lzwOutSeq
-else:
-  outSeq=rleOutSeq
+  # if len(lzwOutSeq) < len(rleOutSeq):
+  #   outSeq=lzwOutSeq
+  # else:
+  #   outSeq=rleOutSeq
 
