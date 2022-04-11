@@ -2,7 +2,8 @@
 patent https://patentimages.storage.googleapis.com/32/01/df/bdcbe47a878992/WO2019045798A1.pdf
 
 # issue
-1. LZW and RLE use a different alphabet set.
+1. ~LZW and RLE use a different alphabet set.~
+2. Figure out the length of AE encoded sequence. maybe try this: https://github.com/nayuki/Reference-arithmetic-coding/tree/master/python
 
 # overview
 use two lossless encoder LZW (Lemple-Ziv) and RLE (Run length) and a entropy encoder AE.
@@ -21,5 +22,4 @@ LZW: https://pythonhosted.org/lzw/lzw-module.html
 AE: https://github.com/ahmedfgad/ArithmeticEncodingPython
 https://github.com/michaeldipperstein/arcode-py
 https://github.com/nayuki/Reference-arithmetic-coding
-https://pypi.org/project/torchac/
 RLE: https://github.com/tnwei/python-rle

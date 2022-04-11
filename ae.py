@@ -1,18 +1,34 @@
-import pyae
-
+import arithmeticcoding
+import contextlib, sys
+import io
 
 def encodedLen(msg, prob_table):
-  AE = pyae.ArithmeticEncoding(frequency_table=prob_table,)
+  inp=io.BytesIO()
+  inp.write(bytes(msg))
+  inp.seek(0)
+  # inp=arithmeticcoding.BitInputStream(inpStream)
+  freqs=get_frequencies(prob_table)
+  outStream=io.BytesIO()
+  bitout=arithmeticcoding.BitOutputStream(outStream)
 
-  encoded_msg, encoder , interval_min_value, interval_max_value = AE.encode(msg=msg, 
-                                                                            probability_table=AE.probability_table)
+  enc = arithmeticcoding.ArithmeticEncoder(32, bitout)
+  while True:
+    symbol = inp.read(1)
+    if len(symbol) == 0:
+      break
+    enc.write(freqs, symbol[0])
+  enc.write(freqs, 256)  # EOF
+  enc.finish()  # Flush remaining code bits
 
-  print("Encoded Message: {msg}\nMin interval:{min}\nMax interval:{max}\n".format(msg=encoded_msg, min=interval_min_value, max=interval_max_value))
-  # Get the binary code out of the floating-point value
-  
-  i=0
-  while int(encoded_msg) != encoded_msg:
-    encoded_msg=encoded_msg*2
-    i+=1
+  outStream.seek(0)
+  return len(outStream.read())
 
-  return i
+# Returns a frequency table based on the bytes in the given file.
+# Also contains an extra entry for symbol 256, whose frequency is set to 0.
+def get_frequencies(prob_table):
+  freqs = arithmeticcoding.SimpleFrequencyTable([0] * 257)
+  for (k,v) in prob_table.items():
+    freqs.set(k, int(v))
+
+  freqs.increment(256)
+  return freqs
