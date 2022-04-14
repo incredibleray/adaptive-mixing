@@ -20,7 +20,7 @@ rleOutSeqLen=0
 
 lzwWeight=500
 
-for i in range(500, len(inputSeq), 100):
+for i in range(2000, len(inputSeq), 500):
   seq=inputSeq[:i]
 
   # print("input sequence\n{}".format(seq))
@@ -36,11 +36,21 @@ for i in range(500, len(inputSeq), 100):
   rleProbTable=dict(Counter(rleSeq))
   
   print("lzw_128_7 probability table")
-  probabilityTable.printTable(lzwProbTable)
-  probabilityTable.printentropy(lzwProbTable)
+  # probabilityTable.printTable(lzwProbTable)
+
   print("lzw_250_8 probability table")
-  probabilityTable.printTable(rleProbTable)
-  probabilityTable.printentropy(rleProbTable)
+  # probabilityTable.printTable(rleProbTable)
+
+
+  lzwAeSeqLen=ae.encodedLen(lzwSeq, lzwProbTable)
+  print("lzw_128_7 own probability encoded length={}".format(lzwAeSeqLen))
+
+  rleAeSeqLen=ae.encodedLen(rleSeq, rleProbTable)
+  print("lzw_250_8 own probability encoded length={}".format(rleAeSeqLen))
+
+  lzwWeight=int(1000*rleAeSeqLen/(lzwAeSeqLen+rleAeSeqLen))
+
+  print("lzw_128_7 weight={:1.3f}, lzw_250_8 weight={:1.3f}".format(lzwWeight/1000, 1-lzwWeight/1000))
 
   weightedProb={}
   for p in lzwProbTable:
@@ -51,7 +61,7 @@ for i in range(500, len(inputSeq), 100):
   
   # mixedProbTable=M.mixProbTable(lzwProbTable, rleProbTable, lzwWeight)
   print("mixed probability table")
-  probabilityTable.printTable(weightedProb)
+  # probabilityTable.printTable(weightedProb)
   probabilityTable.printentropy(weightedProb)
 
 # Encode the message
@@ -63,10 +73,6 @@ for i in range(500, len(inputSeq), 100):
 
   print("lzw_128_7 mixed probability encoded length={}".format(lzwOutSeqLen))
   print("lzw_250_8 mixed probability encoded length={}".format(rleOutSeqLen))
-
-  lzwWeight=int(1000*rleOutSeqLen/(lzwOutSeqLen+rleOutSeqLen))
-
-  print("lzw_128_7 weight={:1.3f}, lzw_250_8 weight={:1.3f}".format(lzwWeight/1000, 1-lzwWeight/1000))
 
   # if len(lzwOutSeq) < len(rleOutSeq):
   #   outSeq=lzwOutSeq
