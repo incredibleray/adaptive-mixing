@@ -1,4 +1,7 @@
+import decimal
 from decimal import Decimal
+
+decimal.getcontext().prec=4000
 
 class ArithmeticEncoding:
     """
