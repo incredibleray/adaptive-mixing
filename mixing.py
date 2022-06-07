@@ -21,22 +21,18 @@ rleOutSeqLen=0
 lzwWeight=500
 
 # for i in range(2000, len(inputSeq), 500):
-for i in range(2000, 2001, 500):
+for i in range(2000, 30001, 1000):
   seq=inputSeq[:i]
 
   # print("input sequence\n{}".format(seq))
   print("input sequence len={}".format(i))
 
-  probTable=dict(Counter(seq))
-  
-  ae=pyae.ArithmeticEncoding(probTable)
+  byteArray=seq.encode('utf-8')
 
-  encoded_msg, encoder, interval_min_value, interval_max_value=ae.encode(seq, ae.probability_table)
-  
-  print("encoded message={}\nmin={}\nmax={}".format(encoded_msg, interval_min_value, interval_max_value))
+  outLen1, outLen2=ae.encodedLen(byteArray)
 
-  binary_code, binary_encoder=ae.encode_binary(interval_min_value,interval_max_value)
-  print("binary code={}".format(binary_code))
+  print("encoded message len 1={}, 2={}".format(outLen1, outLen2))
+
   # rleAeSeqLen=ae.encodedLen(rleSeq, rleProbTable)
   # print("lzw_250_8 own probability encoded length={}".format(rleAeSeqLen))
 
