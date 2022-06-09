@@ -1,18 +1,16 @@
 import arithmeticcoding
 import contextlib, sys
 import io
+from fractions import Fraction
 
-context1ProbTable={}
-for i in range(0, 256):
-  context1ProbTable[i]=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+context1ProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
 context2ProbTable={}
 for i in range(0, 256):
   for j in range(0, 256):
-    for k in range(0, 256):
-      context2ProbTable[(i, j, k)]=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+    context2ProbTable[(i, j)]=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
-mixedProbTable=arithmeticcoding.SimpleFrequencyTable([0] * 257)
+mixedProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
 def encodedLen(byteArray):
   inp=io.BytesIO()
@@ -26,8 +24,11 @@ def encodedLen(byteArray):
   context2Out=io.BytesIO()
   context2Enc = arithmeticcoding.ArithmeticEncoder(32, arithmeticcoding.BitOutputStream(context2Out))
 
+  mixedOut=io.BytesIO()
+  mixedEnc = arithmeticcoding.ArithmeticEncoder(32, arithmeticcoding.BitOutputStream(mixedOut))
+
   context1=0
-  context2=(0, 0, 0)
+  context2=(0, 0)
 
   while True:
     symbol = inp.read(1)
@@ -36,41 +37,48 @@ def encodedLen(byteArray):
 
     symbol=symbol[0]
 
-    context1Freq=context1ProbTable[context1]
+    context1Freq=context1ProbTable
     context2Freq=context2ProbTable[context2]
     
     context1Enc.write(context1Freq, symbol)
     context2Enc.write(context2Freq, symbol)
 
-    context1Freq.increment(symbol)
-    context2Freq.increment(symbol)
-
     context1Len=context1Out.tell()
     context2Len=context2Out.tell()
 
-    context1=symbol
-    context2=(context2[1], context2[2], symbol)
+    mixRatio=Fraction(pow(2, context2Len), pow(2, context1Len)+pow(2, context2Len))
 
-  context1Freq=context1ProbTable[context1]
+    context1Prob=Fraction(context1Freq.get(symbol),context1Freq.get_total())
+    context2Prob=Fraction(context2Freq.get(symbol),context2Freq.get_total())
+    mixedProb=context1Prob*mixRatio+context2Prob*(1-mixRatio)
+
+    mixedProb=mixedProb.limit_denominator(100000)
+    mixedProbTable.set(symbol, mixedProb.numerator)
+    mixedProbTable.set(0, mixedProb.denominator-mixedProb.numerator)
+
+    mixedEnc.write(mixedProbTable, symbol)
+
+    mixedProbTable.set(symbol, 0)
+
+    context1Freq.increment(symbol)
+    context2Freq.increment(symbol)
+
+    context1=symbol
+    context2=(context2[1], symbol)
+
+  context1Freq=context1ProbTable
   context2Freq=context2ProbTable[context2]
 
   context1Enc.write(context1Freq, 256)
   context2Enc.write(context2Freq, 256)  # EOF
-  
+  mixedEnc.write(mixedProbTable, 256)
+
   context1Enc.finish()  # Flush remaining code bits
   context2Enc.finish()
+  mixedEnc.finish()
 
-  return context1Out.tell(), context2Out.tell()
+  return context1Out.tell(), context2Out.tell(), mixedOut.tell()
 
-# Returns a frequency table based on the bytes in the given file.
-# Also contains an extra entry for symbol 256, whose frequency is set to 0.
-def get_frequencies(prob_table):
-  freqs = arithmeticcoding.SimpleFrequencyTable([0] * 257)
-  for (k,v) in prob_table.items():
-    freqs.set(k, int(v))
-
-  freqs.increment(256)
-  return freqs
 
 #   import contextlib, sys
 # import arithmeticcoding

@@ -8,6 +8,7 @@ import pyae
 # binascii.rlecode_hqx
 # inputSeq="TTTTTT555555oooopppppppppp"
 inputSeq=open('text.txt', 'r').read()
+outputCsv=open('out.csv', 'w')
 
 lzwSeq=""
 rleSeq=""
@@ -20,8 +21,10 @@ rleOutSeqLen=0
 
 lzwWeight=500
 
+outputCsv.write("inputLength, context 1 Encoded Length, context 2 Encoded Length, Mixing encoded length\n")
+
 # for i in range(2000, len(inputSeq), 500):
-for i in range(2000, 30001, 1000):
+for i in range(2000, 60001, 1000):
   seq=inputSeq[:i]
 
   # print("input sequence\n{}".format(seq))
@@ -29,10 +32,11 @@ for i in range(2000, 30001, 1000):
 
   byteArray=seq.encode('utf-8')
 
-  outLen1, outLen2=ae.encodedLen(byteArray)
+  outLen1, outLen2, outLen3=ae.encodedLen(byteArray)
 
-  print("encoded message len 1={}, 2={}".format(outLen1, outLen2))
+  print("encoded message len 1={}, 2={}, 3={}".format(outLen1, outLen2, outLen3))
 
+  outputCsv.write("{},{},{},{}\n".format(i,outLen1, outLen2, outLen3))
   # rleAeSeqLen=ae.encodedLen(rleSeq, rleProbTable)
   # print("lzw_250_8 own probability encoded length={}".format(rleAeSeqLen))
 
@@ -51,7 +55,7 @@ for i in range(2000, 30001, 1000):
   # print("mixed probability table")
   # # probabilityTable.printTable(weightedProb)
   # probabilityTable.printentropy(weightedProb)
-
+outputCsv.close()
 # # Encode the message
 #   lzwOutSeq=None
 #   rleOutSeq=None
