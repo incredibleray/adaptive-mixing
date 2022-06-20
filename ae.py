@@ -12,7 +12,7 @@ for i in range(0, 256):
 
 mixedProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
-def encodedLen(byteArray):
+def encodedLen(byteArray, adaptive=False):
   inp=io.BytesIO()
   inp.write(byteArray)
   inp.seek(0)
@@ -48,11 +48,14 @@ def encodedLen(byteArray):
 
     mixRatio=Fraction(pow(2, context2Len), pow(2, context1Len)+pow(2, context2Len))
 
+    # print("mix ratio={}".format(float(mixRatio)))
+
     context1Prob=Fraction(context1Freq.get(symbol),context1Freq.get_total())
     context2Prob=Fraction(context2Freq.get(symbol),context2Freq.get_total())
     mixedProb=context1Prob*mixRatio+context2Prob*(1-mixRatio)
 
-    mixedProb=mixedProb.limit_denominator(100000)
+    mixedProb=mixedProb.limit_denominator(1000000000)
+    # mixedProb=context1Prob.limit_denominator(1000000000)
     mixedProbTable.set(symbol, mixedProb.numerator)
     mixedProbTable.set(0, mixedProb.denominator-mixedProb.numerator)
 
@@ -60,8 +63,9 @@ def encodedLen(byteArray):
 
     mixedProbTable.set(symbol, 0)
 
-    context1Freq.increment(symbol)
-    context2Freq.increment(symbol)
+    if adaptive:
+      context1Freq.increment(symbol)
+      context2Freq.increment(symbol)
 
     context1=symbol
     context2=(context2[1], symbol)
@@ -79,6 +83,35 @@ def encodedLen(byteArray):
 
   return context1Out.tell(), context2Out.tell(), mixedOut.tell()
 
+def bakeContextProbTable(byteArray):
+  inp=io.BytesIO()
+  inp.write(byteArray)
+  inp.seek(0)
+
+  context1=0
+  context2=(0, 0)
+
+  while True:
+    symbol = inp.read(1)
+    if len(symbol) == 0:
+      break
+
+    symbol=symbol[0]
+
+    context1Freq=context1ProbTable
+    context2Freq=context2ProbTable[context2]
+
+    context1Freq.increment(symbol)
+    context2Freq.increment(symbol)
+
+    context1=symbol
+    context2=(context2[1], symbol)
+
+  context1Freq=context1ProbTable
+  context2Freq=context2ProbTable[context2]
+
+  context1Freq.increment(256)
+  context2Freq.increment(256)
 
 #   import contextlib, sys
 # import arithmeticcoding
