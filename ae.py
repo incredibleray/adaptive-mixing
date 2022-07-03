@@ -2,6 +2,7 @@ import arithmeticcoding
 import contextlib, sys
 import io
 from fractions import Fraction
+import math
 
 context1ProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
@@ -11,6 +12,8 @@ for i in range(0, 256):
     context2ProbTable[(i, j)]=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
 mixedProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+
+probTableTotal=10000000000
 
 def encodedLen(byteArray, adaptive=False):
   inp=io.BytesIO()
@@ -54,10 +57,10 @@ def encodedLen(byteArray, adaptive=False):
     context2Prob=Fraction(context2Freq.get(symbol),context2Freq.get_total())
     mixedProb=context1Prob*mixRatio+context2Prob*(1-mixRatio)
 
-    mixedProb=mixedProb.limit_denominator(1000000000)
-    # mixedProb=context1Prob.limit_denominator(1000000000)
-    mixedProbTable.set(symbol, mixedProb.numerator)
-    mixedProbTable.set(0, mixedProb.denominator-mixedProb.numerator)
+    # mixedProbNumerator=math.floor(mixedProb*probTableTotal)
+    mixedProbNumerator=context2Prob.numerator
+    mixedProbTable.set(symbol, mixedProbNumerator)
+    mixedProbTable.set(0, probTableTotal-mixedProbNumerator)
 
     mixedEnc.write(mixedProbTable, symbol)
 
@@ -112,6 +115,26 @@ def bakeContextProbTable(byteArray):
 
   context1Freq.increment(256)
   context2Freq.increment(256)
+
+  setContextFreqTablesToSameTotalCount()
+
+def setContextFreqTablesToSameTotalCount():
+  for i in range(0, 256):
+    for j in range(0, 256):
+      table=context2ProbTable[(i,j)]
+
+      if table.total == 0:
+        continue
+
+      newTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+
+      for k in range(0, 256):
+        newTableCount=math.floor(
+          Fraction(probTableTotal*table.get(k),table.get_total()))
+        newTable.set(k, newTableCount)
+
+      newTable.set(256, probTableTotal-newTable.total)
+      context2ProbTable[(i,j)]=newTable
 
 #   import contextlib, sys
 # import arithmeticcoding
