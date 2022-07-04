@@ -3,6 +3,8 @@ import contextlib, sys
 import io
 from fractions import Fraction
 
+
+
 context1ProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
 context2ProbTable={}
@@ -13,6 +15,9 @@ for i in range(0, 256):
 mixedProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
 
 def encodedLen(byteArray, adaptive=False):
+  outputCsv=open('details.csv', 'w')
+  outputCsv.write("mixRatio,C1Prob,C2Prob,MixProb\n")
+
   inp=io.BytesIO()
   inp.write(byteArray)
   inp.seek(0)
@@ -29,6 +34,8 @@ def encodedLen(byteArray, adaptive=False):
 
   context1=0
   context2=(0, 0)
+
+  trace=[]
 
   while True:
     symbol = inp.read(1)
@@ -52,9 +59,10 @@ def encodedLen(byteArray, adaptive=False):
 
     context1Prob=Fraction(context1Freq.get(symbol),context1Freq.get_total())
     context2Prob=Fraction(context2Freq.get(symbol),context2Freq.get_total())
-    mixedProb=context1Prob*mixRatio+context2Prob*(1-mixRatio)
+    # mixedProb=context1Prob*mixRatio+context2Prob*(1-mixRatio)
+    mixedProb=context2Prob
 
-    mixedProb=mixedProb.limit_denominator(1000000000)
+    mixedProb=mixedProb.limit_denominator(10000000000)
     # mixedProb=context1Prob.limit_denominator(1000000000)
     mixedProbTable.set(symbol, mixedProb.numerator)
     mixedProbTable.set(0, mixedProb.denominator-mixedProb.numerator)
@@ -70,6 +78,16 @@ def encodedLen(byteArray, adaptive=False):
     context1=symbol
     context2=(context2[1], symbol)
 
+    trace.append({
+      "enc1":context1Out.tell(), 
+      "enc2":context2Out.tell(), 
+      "mixing":mixedOut.tell(),
+      "mixingProb": mixRatio
+    })
+    outputCsv.write("{:3f},{:3f},{:3f},{:3f}\n".format(
+      float(mixRatio), float(context1Prob),float(context2Prob), float(mixedProb)
+    ))
+
   context1Freq=context1ProbTable
   context2Freq=context2ProbTable[context2]
 
@@ -81,7 +99,7 @@ def encodedLen(byteArray, adaptive=False):
   context2Enc.finish()
   mixedEnc.finish()
 
-  return context1Out.tell(), context2Out.tell(), mixedOut.tell()
+  return context1Out.tell(), context2Out.tell(), mixedOut.tell(), trace
 
 def bakeContextProbTable(byteArray):
   inp=io.BytesIO()

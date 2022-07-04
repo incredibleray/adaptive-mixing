@@ -24,7 +24,7 @@ lzwWeight=500
 outputCsv.write("inputLength, context 1 Encoded Length, context 2 Encoded Length, Mixing encoded length\n")
 
 print("input sequence len={}".format(len(inputSeq)))
-# ae.bakeContextProbTable(inputSeq.encode('utf-8'))
+ae.bakeContextProbTable(inputSeq.encode('utf-8'))
 
 # for i in range(2000, len(inputSeq), 500):
 for i in range(5000, 1000000, 5000):
@@ -35,11 +35,18 @@ for i in range(5000, 1000000, 5000):
 
   byteArray=seq.encode('utf-8')
 
-  outLen1, outLen2, outLen3=ae.encodedLen(byteArray, True)
+  outLen1, outLen2, outLen3, trace=ae.encodedLen(byteArray, False)
 
   print("encoded message len 1={}, 2={}, 3={}".format(outLen1, outLen2, outLen3))
 
-  outputCsv.write("{},{},{},{}\n".format(i,outLen1, outLen2, outLen3))
+  threeQuarterIndex=int(len(trace)*3/4)
+  lastQuarterLen1=outLen1-trace[threeQuarterIndex]["enc1"]
+  lastQuarterLen2=outLen2-trace[threeQuarterIndex]["enc2"]
+  lastQuarterLen3=outLen3-trace[threeQuarterIndex]["mixing"]
+
+  print("encoded message of last quarter len 1={}, 2={}, 3={}, last quarter point mixing prob={}".format(lastQuarterLen1, lastQuarterLen2, lastQuarterLen3, float(trace[lastQuarterLen3]["mixingProb"])))
+
+  outputCsv.write("{},{},{},{},{},{},{}\n".format(i,outLen1, outLen2, outLen3, lastQuarterLen1, lastQuarterLen2, lastQuarterLen3))
   # rleAeSeqLen=ae.encodedLen(rleSeq, rleProbTable)
   # print("lzw_250_8 own probability encoded length={}".format(rleAeSeqLen))
 
