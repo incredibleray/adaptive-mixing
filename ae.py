@@ -6,20 +6,20 @@ import math
 
 
 
-context1ProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+context1ProbTable=arithmeticcoding.SimpleFrequencyTable([0]*257)
 
 context2ProbTable={}
 for i in range(0, 256):
-  for j in range(0, 256):
-    context2ProbTable[(i, j)]=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+  #for j in range(0, 256):
+  #  context2ProbTable[(i, j)]=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+  context2ProbTable[i]=arithmeticcoding.SimpleFrequencyTable([0]*257)
+mixedProbTable=arithmeticcoding.SimpleFrequencyTable([0]*257)
 
-mixedProbTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
-
-probTableTotal=10000000000
+probTableTotal=1000000000
 
 def encodedLen(byteArray, adaptive=False):
-  outputCsv=open('details.csv', 'w')
-  outputCsv.write("mixRatio,C1Prob,C2Prob,MixProb\n")
+  # outputCsv=open('details.csv', 'w')
+  # outputCsv.write("mixRatio,C1Prob,C2Prob,MixProb\n")
 
   inp=io.BytesIO()
   inp.write(byteArray)
@@ -48,7 +48,8 @@ def encodedLen(byteArray, adaptive=False):
     symbol=symbol[0]
 
     context1Freq=context1ProbTable
-    context2Freq=context2ProbTable[context2]
+    #context2Freq=context2ProbTable[context2]
+    context2Freq=context2ProbTable[context1]
     
     context1Enc.write(context1Freq, symbol)
     context2Enc.write(context2Freq, symbol)
@@ -62,11 +63,14 @@ def encodedLen(byteArray, adaptive=False):
 
     context1Prob=Fraction(context1Freq.get(symbol),context1Freq.get_total())
     context2Prob=Fraction(context2Freq.get(symbol),context2Freq.get_total())
-    # mixedProb=context1Prob*mixRatio+context2Prob*(1-mixRatio)
-    mixedProb=context2Prob
+    mixedProb=context1Prob*mixRatio+context2Prob*(1-mixRatio)
+    #mixedProb=context2Prob
 
-    # mixedProbNumerator=math.floor(mixedProb*probTableTotal)
-    mixedProbNumerator=context2Prob.numerator
+    assert abs(context2Freq.total-probTableTotal)<5
+
+    #mixedProbNumerator=context2Freq.get(symbol)
+    mixedProbNumerator=math.floor(mixedProb*probTableTotal)
+    #mixedProbNumerator=math.floor(context1Prob*probTableTotal)
     mixedProbTable.set(symbol, mixedProbNumerator)
     mixedProbTable.set(0, probTableTotal-mixedProbNumerator)
 
@@ -87,16 +91,17 @@ def encodedLen(byteArray, adaptive=False):
       "mixing":mixedOut.tell(),
       "mixingProb": mixRatio
     })
-    outputCsv.write("{:3f},{:3f},{:3f},{:3f}\n".format(
-      float(mixRatio), float(context1Prob),float(context2Prob), float(mixedProb)
-    ))
+    # outputCsv.write("{:3f},{:3f},{:3f},{:3f}\n".format(
+    #   float(mixRatio), float(context1Prob),float(context2Prob), float(mixedProb)
+    # ))
 
   context1Freq=context1ProbTable
-  context2Freq=context2ProbTable[context2]
+  #context2Freq=context2ProbTable[context2]
+  context2Freq=context2ProbTable[context1]
 
   context1Enc.write(context1Freq, 256)
   context2Enc.write(context2Freq, 256)  # EOF
-  mixedEnc.write(mixedProbTable, 256)
+  mixedEnc.write(context2Freq, 256)
 
   context1Enc.finish()  # Flush remaining code bits
   context2Enc.finish()
@@ -120,7 +125,8 @@ def bakeContextProbTable(byteArray):
     symbol=symbol[0]
 
     context1Freq=context1ProbTable
-    context2Freq=context2ProbTable[context2]
+    #context2Freq=context2ProbTable[context2]
+    context2Freq=context2ProbTable[context1]
 
     context1Freq.increment(symbol)
     context2Freq.increment(symbol)
@@ -129,7 +135,8 @@ def bakeContextProbTable(byteArray):
     context2=(context2[1], symbol)
 
   context1Freq=context1ProbTable
-  context2Freq=context2ProbTable[context2]
+  #context2Freq=context2ProbTable[context2]
+  context2Freq=context2ProbTable[context1]
 
   context1Freq.increment(256)
   context2Freq.increment(256)
@@ -138,22 +145,26 @@ def bakeContextProbTable(byteArray):
 
 def setContextFreqTablesToSameTotalCount():
   for i in range(0, 256):
-    for j in range(0, 256):
-      table=context2ProbTable[(i,j)]
+    #for j in range(0, 256):
+    #  table=context2ProbTable[(i,j)]
+    table=context2ProbTable[i]
 
-      if table.total == 0:
+    if table.total == 0:
         continue
 
-      newTable=arithmeticcoding.SimpleFrequencyTable(arithmeticcoding.FlatFrequencyTable(257))
+    newTable=arithmeticcoding.SimpleFrequencyTable([0]*257)
 
-      for k in range(0, 256):
+    for k in range(0, 256):
         newTableCount=math.floor(
-          Fraction(probTableTotal*table.get(k),table.get_total()))
+        Fraction(probTableTotal*table.get(k),table.get_total()))
         newTable.set(k, newTableCount)
 
-      newTable.set(256, probTableTotal-newTable.total)
-      context2ProbTable[(i,j)]=newTable
+    newTable.set(256, probTableTotal-newTable.total)
 
+    # print("prob table total={}".format(newTable.total))
+    # assert newTable.total==probTableTotal
+    #context2ProbTable[(i,j)]=newTable
+    context2ProbTable[i]=newTable
 #   import contextlib, sys
 # import arithmeticcoding
 

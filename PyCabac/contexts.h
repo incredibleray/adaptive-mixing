@@ -152,13 +152,7 @@ public:
 public:
   uint16_t m_state[2];
   uint8_t  m_rate;
-public:
-    BinProbModel_Std mix(BinProbModel_Std modelB) {
-        BinProbModel_Std mixModel= BinProbModel_Std();
-        mixModel.m_state[0]= (this->m_state[0] + modelB.m_state[0]) / 2;
-        mixModel.m_state[1] = (this->m_state[1] + modelB.m_state[1]) / 2;
-        return mixModel;
-   }
+
 };
 
 #endif

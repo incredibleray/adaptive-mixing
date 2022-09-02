@@ -66,19 +66,18 @@ void main() {
 
 
         int64_t context = 0;
-        unsigned contextXMask = 0x07;
-        unsigned contextYMask = 0x01;
+        unsigned contextMask = 0x03;
         for (auto it = inpBits.begin(); it < inpBits.end(); it++) {
             unsigned bit = *it;
-            encX.encodeBin(bit, context& contextXMask);
-            encY.encodeBin(bit, context & contextYMask);
+            encX.encodeBin(bit, 0);
+            encY.encodeBin(bit, context);
 
             auto encXLen = encX.getBitstream().size();
             auto encYLen = encY.getBitstream().size();
             double encXWeight = (encYLen) / (encXLen + encYLen);
 
             auto mixedContext = encX.m_Ctx[context & contextXMask];
-            context=context << 1 | bit;
+            context=(context << 1 | bit)& contextMask;
         }
 
         

@@ -13,7 +13,14 @@ LZW: https://pythonhosted.org/lzw/lzw-module.html
 1. ~LZW and RLE use a different alphabet set.~
 2. ~Figure out the length of AE encoded sequence. maybe try this: https://github.com/nayuki/Reference-arithmetic-coding/tree/master/python~
 3. ~Use more refined weight, at the moment it is only three digits.~
-4. Only need arithmetic encoder, different context, e.g. one uses one previous symbol, the other uses 3 previous symbols.
+4. ~Only need arithmetic encoder, different context, e.g. one uses one previous symbol, the other uses 3 previous symbols.~
+5. need to find a airthmetic encoder that supports multiple probablity tables, or a cabac that supports mixing probablity. 
+6. listing some libraries to investigate:
+https://github.com/jigar23/CABAC/tree/master/CABAC/src
+* https://github.com/dmitrykravchenko2018/arithmetic_coding
+https://github.com/WaleedYaser/Arithmetic-Coding/blob/41fb8c27062870973e5c6c2bca4e6f387867436c/Arithmatic.py#L26
+https://github.com/fab-jul/torchac/blob/master/torchac/backend/torchac_backend.cpp
+https://github.com/scresh/arithmetic_coding/blob/master/coding/encoder.py
 
 # overview
 use two lossless encoder LZW (Lemple-Ziv) and RLE (Run length) and a entropy encoder AE.

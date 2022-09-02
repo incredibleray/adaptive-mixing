@@ -7,7 +7,7 @@ import pyae
 
 # binascii.rlecode_hqx
 # inputSeq="TTTTTT555555oooopppppppppp"
-inputSeq=open('text.txt', 'r').read()
+inputSeq=open('text.txt', 'r').read(100000)
 outputCsv=open('out.csv', 'w')
 
 lzwSeq=""
@@ -27,7 +27,7 @@ print("input sequence len={}".format(len(inputSeq)))
 ae.bakeContextProbTable(inputSeq.encode('utf-8'))
 
 # for i in range(2000, len(inputSeq), 500):
-for i in range(5000, 1000000, 5000):
+for i in range(10, 300, 10):
   seq=inputSeq[:i]
 
   # print("input sequence\n{}".format(seq))
@@ -45,8 +45,10 @@ for i in range(5000, 1000000, 5000):
   lastQuarterLen3=outLen3-trace[threeQuarterIndex]["mixing"]
 
   print("encoded message of last quarter len 1={}, 2={}, 3={}, last quarter point mixing prob={}".format(lastQuarterLen1, lastQuarterLen2, lastQuarterLen3, float(trace[lastQuarterLen3]["mixingProb"])))
-
-  outputCsv.write("{},{},{},{},{},{},{}\n".format(i,outLen1, outLen2, outLen3, lastQuarterLen1, lastQuarterLen2, lastQuarterLen3))
+  
+  outputCsv.write("{},{},{},{}\n".format(i,outLen1, outLen2, outLen3))
+  
+  #outputCsv.write("{},{},{},{},{},{},{}\n".format(i,outLen1, outLen2, outLen3, lastQuarterLen1, lastQuarterLen2, lastQuarterLen3))
   # rleAeSeqLen=ae.encodedLen(rleSeq, rleProbTable)
   # print("lzw_250_8 own probability encoded length={}".format(rleAeSeqLen))
 
