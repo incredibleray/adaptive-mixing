@@ -26,3 +26,11 @@ debug.json
 
 *.txt
 *.sed
+
+*.o
+libjpeg.a 
+cjpeg 
+djpeg 
+jpegtran 
+rdjpgcom 
+wrjpgcom

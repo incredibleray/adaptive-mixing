@@ -1,4 +1,5 @@
 
+from pickle import BYTEARRAY8
 import ae
 from collections import Counter
 import probabilityTable
@@ -35,7 +36,7 @@ for i in range(10, 300, 10):
 
   byteArray=seq.encode('utf-8')
 
-  outLen1, outLen2, outLen3, trace=ae.encodedLen(byteArray, False)
+  outLen1, outLen2, outLen3, trace, context1Out, context2Out, mixingOut=ae.encodedLen(byteArray, False)
 
   print("encoded message len 1={}, 2={}, 3={}".format(outLen1, outLen2, outLen3))
 
@@ -48,6 +49,7 @@ for i in range(10, 300, 10):
   
   outputCsv.write("{},{},{},{}\n".format(i,outLen1, outLen2, outLen3))
   
+  ae.decode(byteArray, context1Out)
   #outputCsv.write("{},{},{},{},{},{},{}\n".format(i,outLen1, outLen2, outLen3, lastQuarterLen1, lastQuarterLen2, lastQuarterLen3))
   # rleAeSeqLen=ae.encodedLen(rleSeq, rleProbTable)
   # print("lzw_250_8 own probability encoded length={}".format(rleAeSeqLen))
