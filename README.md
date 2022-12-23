@@ -2,6 +2,11 @@
 patent https://patentimages.storage.googleapis.com/32/01/df/bdcbe47a878992/WO2019045798A1.pdf
 
 # AV1 experiment
+
+## tech docs
+https://aomedia.org/docs/AV1_ToolDescription_v11-clean.pdf
+https://arxiv.org/pdf/2008.06091.pdf
+
 ## contexts in av1 description
 The context model applied to the lower-level plane depends on 1) the primary transform directions,
 namely: bi-directional, horizontal, and vertical; 2) the transform block size; and 3) up to five
