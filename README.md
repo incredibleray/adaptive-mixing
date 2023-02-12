@@ -9,10 +9,17 @@ https://aomedia.org/docs/AV1_ToolDescription_v11-clean.pdf
 https://arxiv.org/pdf/2008.06091.pdf
 
 ## contexts in av1 description
-The context model applied to the lower-level plane depends on 1) the primary transform directions,
-namely: bi-directional, horizontal, and vertical; 2) the transform block size; and 3) up to five
-neighbouring transform coefficients in the transform domain. The middle-level plane uses a similar
-context model, but the number of context neighbour coefficients is reduced from 5 to 2. The
+The context model applied to the _lower-level_ plane depends on 
+1. the primary transform directions,
+namely: bi-directional, horizontal, and vertical; 
+2. the transform block size; and 
+3. up to five
+neighbouring transform coefficients in the transform domain. 
+
+The middle-level plane uses a similar
+context model, but the number of context neighbour coefficients is reduced from 5 to 2. 
+
+The
 higher-level plane is coded by Exp-Golomb code without using context modelling. For the sign
 plane, with the exception of the DC sign, which is coded using the DC signs from neighbouring
 transform units, sign values of all other coefficients are coded directly without context modelling.
